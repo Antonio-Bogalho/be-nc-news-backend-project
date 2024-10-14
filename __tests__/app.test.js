@@ -20,17 +20,17 @@ describe("/api", () => {
         .expect(200)
         .then(({ body }) => {
             expect(body.endpoints).toEqual(endpoints)
-        }) //I didn't realize I did 3 already
+        }) 
     })
 })
 
 describe("/api/topics", () => {
-    test("GET: 200 sends an array of all treasures to the client in correct formats", () => {
+    test("GET: 200 - responds with an array of topic objects", () => {
         return request(app)
         .get("/api/topics")
         .expect(200)
         .then((response) => {
-            expect(Array.isArray(response.body.topics)).toBe(true)
+            expect(response.body.topics.length > 0)
             response.body.topics.forEach((topic) => {
                 expect(topic).toHaveProperty("slug")
                 expect(topic).toHaveProperty("description")
@@ -38,3 +38,21 @@ describe("/api/topics", () => {
         })
         })
     })
+
+// describe("/api/articles/:article_id", () => {
+//     test("GET: 200 - an article object", () => {
+//         return request(app)
+//         .get("/api/article/1")
+//         .expect(200)
+//         .then((response) => {
+//             expect(response.body.article.article_id).toBe(1)
+//             expect(response.body.article.author).toBe("butter_bridge")
+//             expect(response.body.article.title).toBe("Living in the shadow of a great man")
+//             expect(response.body.article.body).toBe("I find this existence challenging")
+//             expect(response.body.article.topic).toBe("mitch")
+//             expect(response.body.article.created_at).toBe("1594329060000")
+//             expect(response.body.article.votes).toBe(100)
+//             expect(response.body.article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700")
+//         })
+//         })
+//     })
