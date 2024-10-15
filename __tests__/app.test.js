@@ -4,6 +4,7 @@ const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data");
 const endpoints = require("../endpoints.json");
 const request = require("supertest");
+const { toBeSortedBy } = require("jest-sorted");
 
 beforeEach(() => {
   return seed(data);
@@ -40,7 +41,7 @@ describe("/api/topics", () => {
 });
 
 describe("/api/articles/:article_id", () => {
-  test("GET: 200 - an article object", () => {
+  test("GET: 200 - returns the correct article object", () => {
     return request(app)
       .get("/api/articles/1")
       .expect(200)
@@ -80,5 +81,26 @@ describe("/api/articles/:article_id", () => {
       });
   });
 });
-
-
+describe("/api/articles", () => {
+  test("GET: 200 - an array of article objects", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        expect(Array.isArray(response.body.articles)).toBe(true);
+        response.body.articles.forEach((article) => {
+          expect(article).toHaveProperty("author");
+          expect(article).toHaveProperty("title");
+          expect(article).toHaveProperty("article_id");
+          expect(article).toHaveProperty("topic");
+          expect(article).toHaveProperty("created_at");
+          expect(article).toHaveProperty("votes");
+          expect(article).toHaveProperty("article_img_url");
+          expect(article).toHaveProperty("comment_count");
+        });
+        expect(response.body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
+});
