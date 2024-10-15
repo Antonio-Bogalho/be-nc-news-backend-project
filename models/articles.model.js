@@ -32,6 +32,9 @@ ON comments.article_id = articles.article_id
 GROUP BY articles.article_id
 ORDER BY articles.created_at DESC;`)
     .then((result) => {
-      return result.rows
+      return result.rows.map(article => {
+        return {...article, comment_count: Number(article.comment_count)
+        }
+      })
     })
 }

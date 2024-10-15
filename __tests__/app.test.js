@@ -4,7 +4,6 @@ const seed = require("../db/seeds/seed.js");
 const data = require("../db/data/test-data");
 const endpoints = require("../endpoints.json");
 const request = require("supertest");
-const { toBeSortedBy } = require("jest-sorted");
 
 beforeEach(() => {
   return seed(data);
@@ -88,6 +87,7 @@ describe("/api/articles", () => {
       .expect(200)
       .then((response) => {
         expect(Array.isArray(response.body.articles)).toBe(true);
+        expect(response.body.articles).toHaveLength(13);
         response.body.articles.forEach((article) => {
           expect(article).toHaveProperty("author");
           expect(article).toHaveProperty("title");
@@ -102,5 +102,25 @@ describe("/api/articles", () => {
           descending: true,
         });
       });
+  });
+  describe("GET /api/articles/:article_id/comments", () => {
+    test("GET: 200 - responds with an array of comments for the given article_id", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(Array.isArray(comments)).toBe(true);
+          expect(comments).toHaveLength(11);
+          comments.forEach((comment) => {
+            expect(comment).toHaveProperty("comment_id", expect.any(Number));
+            expect(comment).toHaveProperty("author", expect.any(String));
+            expect(comment).toHaveProperty("article_id", 1);
+            expect(comment).toHaveProperty("body", expect.any(String));
+            expect(comment).toHaveProperty("created_at", expect.any(String));
+            expect(comment).toHaveProperty("votes", expect.any(Number));
+          });
+        });
+    });
   });
 });
