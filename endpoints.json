@@ -19,7 +19,7 @@
           "topic": "cooking",
           "author": "weegembump",
           "body": "Text from the article..",
-          "created_at": "2018-05-30T15:59:13.341Z",
+          "created_at": 1600277160000,
           "votes": 0,
           "comment_count": 6
         }
@@ -47,10 +47,27 @@
       "comments": [
         {
           "comment_id": 5,
-          "body": "Text from comment..",
+          "body": "Text from the comment...",
           "article_id": 1,
           "author": "author",
-          "created_at": "2018-05-30T15:59:13.341Z",
+          "created_at":1594329060000,
+          "votes": 0
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Adds a comment to a single article associated to the id given",
+    "queries": [],
+    "body": { "username": "butter_bridge", "body": "body-test-123" },
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 5,
+          "body": "Text from the comment...",
+          "article_id": 1,
+          "author": "author",
+          "created_at": 1594329060000,
           "votes": 0
         }
       ]

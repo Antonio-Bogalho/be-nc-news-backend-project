@@ -149,4 +149,79 @@ describe("/api/articles", () => {
         expect(comments).toHaveLength(0);
       });
   });
+  describe("POST /api/articles/:article_id/comments", () => {
+    test("POST: 201 - responds with a new comment added to the given article_id", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send({
+          username: "butter_bridge",
+          body: "body-test-123",
+        })
+        .set("Accept", "application/json")
+        .expect(201)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(Array.isArray(comments)).toBe(true);
+          expect(comments).toHaveLength(1);
+          const newComment = comments[0];
+          expect(newComment).toHaveProperty("comment_id", expect.any(Number));
+          expect(newComment).toHaveProperty("body", "body-test-123");
+          expect(newComment).toHaveProperty("author", "butter_bridge");
+          expect(newComment).toHaveProperty("article_id", 1);
+          expect(newComment).toHaveProperty("created_at", expect.any(String));
+          expect(newComment).toHaveProperty("votes", 0);
+        });
+    });
+  });
+  test("POST: 404 - sends an appropriate status and error message when posting to a valid but non-existent article_id", () => {
+    return request(app)
+      .post("/api/articles/9999/comments")
+      .send({
+        username: 'butter_bridge',
+        body: 'body-test-123'
+      })
+      .set("Accept", "application/json")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("POST: 400 - sends an appropriate status and error message when posting to an invalid article_id", () => {
+    return request(app)
+      .post("/api/articles/not_an_article_id/comments")
+      .send({
+        username: "butter_bridge",
+        body: "body-test-123",
+      })
+      .set("Accept", "application/json")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("status:400, sends an appropriate status and error message when posting without all properties of comment request body", () => {
+    return request(app)
+    .post("/api/articles/1/comments")
+    .send({
+      username: "butter_bridge",
+    })
+    .set("Accept", "application/json")
+      .expect(400)
+      .then(({body}) => {
+        expect(body.msg).toBe('Bad request');
+      });
+  });
+  test("status:404, sends an appropriate status and error message when posting with an invalid username", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "not-a-username",
+        body: "body-test-123"
+      })
+      .set("Accept", "application/json")
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe('Not found');
+      });
+  });
 });
