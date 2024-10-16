@@ -19,7 +19,7 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId)
 
 app.use((err, request, response, next) => {
   if (err.code === "23502" || err.code === "22P02") {
-    response.status(400).send({ msg: "Bad request" });
+   return response.status(400).send({ msg: "Bad request" });
   }
   next(err);
 });
@@ -32,6 +32,7 @@ app.use((err, request, response, next) => {
 });
 
 app.use((err, request, response, next) => {
+  console.log(err)
   response.status(500).send({ msg:"Internal server error"})
 });
 

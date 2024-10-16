@@ -68,7 +68,7 @@ describe("/api/articles/:article_id", () => {
       .get("/api/articles/999")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("article does not exist");
+        expect(response.body.msg).toBe("Article not found");
       });
   });
   test("GET:400 sends an appropriate status and error message when given an invalid id", () => {
@@ -122,5 +122,31 @@ describe("/api/articles", () => {
           });
         });
     });
+  });
+  test("GET:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
+    return request(app)
+      .get("/api/articles/9999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Article not found");
+      });
+  });
+  test("GET:400 sends an appropriate status and error message when given an invalid id", () => {
+    return request(app)
+      .get("/api/articles/not-an-id/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("GET: 200 - valid article id but has no comments responds with an empty array", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(Array.isArray(comments)).toBe(true);
+        expect(comments).toHaveLength(0);
+      });
   });
 });
