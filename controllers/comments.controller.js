@@ -1,4 +1,4 @@
-const { getComments, addComments } = require('../models/comments.model');
+const { getComments, addComments, updateComments } = require('../models/comments.model');
 
 exports.getCommentsByArticleId = (req, res, next) => {
     const articleId = req.params.article_id
@@ -20,9 +20,10 @@ exports.addCommentsByArticleId = (req, res, next) => {
             return addComments(body, username, articleId);
         })
         .then((newComment) => {
-            res.status(201).send({ comments: [newComment] });
+            res.status(201).send({ comment: newComment });
         })
         .catch((err) => {
             next(err);
         });
 };
+

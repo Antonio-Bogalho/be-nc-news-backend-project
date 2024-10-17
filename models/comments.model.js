@@ -32,3 +32,4 @@ exports.addComments = (body, author, article_id) => {
       return rows[0];
     });
 };
+
