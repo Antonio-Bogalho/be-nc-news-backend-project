@@ -301,3 +301,27 @@ test("PATCH: 400 - sends an appropriate status and error message when patching w
       expect(body.msg).toBe("Bad request");
     });
 });
+describe("DELETE /api/comments/:comment_id", () => {
+  test("DELETE: 204 - deletes the comment associated with the given id", () => {
+    return request(app)
+      .delete("/api/comments/2")
+      .expect(204)
+  });
+})
+test("DELETE: 404 - sends an appropriate status and error message when deleting a valid but non-existent comment_id", () => {
+  return request(app)
+    .delete("/api/comments/999")
+    .expect(404)
+    .then(({body}) => {
+      expect(body.msg).toBe("Comment not found");
+    });
+});
+test("DELETE: 400 - sends an appropriate status and error message when deleting an invalid comment_id", () => {
+  return request(app)
+    .delete("/api/comments/not-a-comment")
+    .expect(400)
+    .then(({body}) => {
+      expect(body.msg).toBe("Bad request");
+    });
+});
+  
