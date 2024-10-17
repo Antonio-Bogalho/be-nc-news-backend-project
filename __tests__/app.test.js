@@ -160,16 +160,13 @@ describe("/api/articles", () => {
         .set("Accept", "application/json")
         .expect(201)
         .then(({ body }) => {
-          const { comments } = body;
-          expect(Array.isArray(comments)).toBe(true);
-          expect(comments).toHaveLength(1);
-          const newComment = comments[0];
-          expect(newComment).toHaveProperty("comment_id", expect.any(Number));
-          expect(newComment).toHaveProperty("body", "body-test-123");
-          expect(newComment).toHaveProperty("author", "butter_bridge");
-          expect(newComment).toHaveProperty("article_id", 1);
-          expect(newComment).toHaveProperty("created_at", expect.any(String));
-          expect(newComment).toHaveProperty("votes", 0);
+          const { comment } = body;
+          expect(comment).toHaveProperty("comment_id", expect.any(Number));
+          expect(comment).toHaveProperty("body", "body-test-123");
+          expect(comment).toHaveProperty("author", "butter_bridge");
+          expect(comment).toHaveProperty("article_id", 1);
+          expect(comment).toHaveProperty("created_at", expect.any(String));
+          expect(comment).toHaveProperty("votes", 0);
         });
     });
   });
@@ -177,8 +174,8 @@ describe("/api/articles", () => {
     return request(app)
       .post("/api/articles/9999/comments")
       .send({
-        username: 'butter_bridge',
-        body: 'body-test-123'
+        username: "butter_bridge",
+        body: "body-test-123",
       })
       .set("Accept", "application/json")
       .expect(404)
@@ -199,29 +196,108 @@ describe("/api/articles", () => {
         expect(body.msg).toBe("Bad request");
       });
   });
-  test("status:400, sends an appropriate status and error message when posting without all properties of comment request body", () => {
+  test("POST: 400 - sends an appropriate status and error message when posting without all properties of comment request body", () => {
     return request(app)
-    .post("/api/articles/1/comments")
-    .send({
-      username: "butter_bridge",
-    })
-    .set("Accept", "application/json")
+      .post("/api/articles/1/comments")
+      .send({
+        username: "butter_bridge",
+      })
+      .set("Accept", "application/json")
       .expect(400)
-      .then(({body}) => {
-        expect(body.msg).toBe('Bad request');
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
-  test("status:404, sends an appropriate status and error message when posting with an invalid username", () => {
+  test("POST: 400 - sends an appropriate status and error message when posting with an invalid username", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({
         username: "not-a-username",
-        body: "body-test-123"
+        body: "body-test-123",
+        test: "ignored",
       })
       .set("Accept", "application/json")
       .expect(404)
-      .then(({body}) => {
-        expect(body.msg).toBe('Not found');
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not found");
       });
   });
+});
+describe("PATCH /api/articles/:article_id", () => {
+  test("PATCH: 200 - responds with the article updated when voted are added", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({
+        inc_votes: 100,
+      })
+      .set("Accept", "application/json")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toHaveProperty("article_id", 1);
+        expect(article).toHaveProperty("author", expect.any(String));
+        expect(article).toHaveProperty("title", expect.any(String));
+        expect(article).toHaveProperty("topic", expect.any(String));
+        expect(article).toHaveProperty("created_at", expect.any(String));
+        expect(article).toHaveProperty("body", expect.any(String));
+        expect(article).toHaveProperty("votes", 200);
+        expect(article).toHaveProperty("article_img_url", expect.any(String));
+      });
+  });
+});
+test("PATCH: 200 - responds with the article updated when voted are removed", () => {
+  return request(app)
+    .patch("/api/articles/1")
+    .send({
+      inc_votes: -100,
+    })
+    .set("Accept", "application/json")
+    .expect(200)
+    .then(({ body }) => {
+      const { article } = body;
+      expect(article).toHaveProperty("article_id", 1);
+      expect(article).toHaveProperty("author", expect.any(String));
+      expect(article).toHaveProperty("title", expect.any(String));
+      expect(article).toHaveProperty("topic", expect.any(String));
+      expect(article).toHaveProperty("created_at", expect.any(String));
+      expect(article).toHaveProperty("body", expect.any(String));
+      expect(article).toHaveProperty("votes", 0);
+      expect(article).toHaveProperty("article_img_url", expect.any(String));
+    });
+});
+test("PATCH: 404 - sends an appropriate status and error message when patching a valid but non-existent article_id", () => {
+  return request(app)
+    .patch("/api/articles/999")
+    .send({
+      inc_votes: -100,
+    })
+    .set("Accept", "application/json")
+    .expect(404)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Article not found");
+    });
+});
+test("PATCH: 400 - sends an appropriate status and error message when patching an invalid article_id", () => {
+  return request(app)
+    .patch("/api/articles/not-an-article-id")
+    .send({
+      inc_votes: -100,
+    })
+    .set("Accept", "application/json")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
+});
+test("PATCH: 400 - sends an appropriate status and error message when patching with incorrect data type", () => {
+  return request(app)
+    .patch("/api/articles/1")
+    .send({
+      inc_votes: "not-a-number",
+    })
+    .set("Accept", "application/json")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
 });
