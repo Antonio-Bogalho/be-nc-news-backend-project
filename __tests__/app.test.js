@@ -214,7 +214,6 @@ describe("/api/articles", () => {
       .send({
         username: "not-a-username",
         body: "body-test-123",
-        test: "ignored",
       })
       .set("Accept", "application/json")
       .expect(404)
@@ -301,6 +300,16 @@ test("PATCH: 400 - sends an appropriate status and error message when patching w
       expect(body.msg).toBe("Bad request");
     });
 });
+test("PATCH: 400 - sends an appropriate status and error message when inc_votes is missing from the request body", () => {
+  return request(app)
+    .patch("/api/articles/1")
+    .send({})  
+    .set("Accept", "application/json")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
+});
 describe("DELETE /api/comments/:comment_id", () => {
   test("DELETE: 204 - deletes the comment associated with the given id", () => {
     return request(app)
@@ -321,6 +330,39 @@ test("DELETE: 400 - sends an appropriate status and error message when deleting 
     .delete("/api/comments/not-a-comment")
     .expect(400)
     .then(({body}) => {
+      expect(body.msg).toBe("Bad request");
+    });
+});
+describe("GET /api/users", () => {
+  test("GET: 200 - responds with an array of user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(users).toBeInstanceOf(Array);
+        expect(users).toHaveLength(4);
+        users.forEach((user) => {
+          expect(user).toHaveProperty("username", expect.any(String));
+          expect(user).toHaveProperty("name", expect.any(String));
+          expect(user).toHaveProperty("avatar_url", expect.any(String));
+        });
+      });
+  });
+});
+test("GET: 404 - responds with a 404 for an invalid path", () => {
+  return request(app)
+    .get("/api/not-a-user")
+    .expect(404)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Not found");
+    });
+});
+test("GET: 400 - responds with a 400 for invalid query", () => {
+  return request(app)
+    .get("/api/users?invalidQuery=value") 
+    .expect(400)
+    .then(({ body }) => {
       expect(body.msg).toBe("Bad request");
     });
 });
