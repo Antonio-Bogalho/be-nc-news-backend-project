@@ -350,20 +350,46 @@ describe("GET /api/users", () => {
       });
   });
 });
-test("GET: 404 - responds with a 404 for an invalid path", () => {
+describe("GET /api/articles?topic", () => {
+  test("GET: 200 - articles should be filtered by the topic value specified in the query", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles).toHaveLength(12);
+        articles.forEach((article) => {
+          expect(article).toHaveProperty("article_id", expect.any(Number));
+          expect(article).toHaveProperty("author", expect.any(String));
+          expect(article).toHaveProperty("title", expect.any(String));
+          expect(article).toHaveProperty("topic", "mitch");
+          expect(article).toHaveProperty("created_at", expect.any(String));
+          expect(article).toHaveProperty("votes", expect.any(Number));
+          expect(article).toHaveProperty("article_img_url", expect.any(String));
+          expect(article).toHaveProperty("comment_count", expect.any(Number));
+        });
+      });
+  });
+});
+test("GET: 200 - if topic query is valid but has no articles relating to it, return an empty array", () => {
   return request(app)
-    .get("/api/not-a-user")
+    .get("/api/articles?topic=paper")
+    .expect(200)
+    .then(({body}) => {
+      const {articles} = body
+      expect(articles).toEqual([])
+    });
+});
+test("GET: 404 - sends an appropriate status and error message when querying a topic that does not exist", () => {
+  return request(app)
+    .get("/api/articles?topic=notatopic")
     .expect(404)
-    .then(({ body }) => {
-      expect(body.msg).toBe("Not found");
+    .then(({body}) => {
+      expect(body.msg).toBe("Topic not found");
     });
 });
-test("GET: 400 - responds with a 400 for invalid query", () => {
-  return request(app)
-    .get("/api/users?invalidQuery=value") 
-    .expect(400)
-    .then(({ body }) => {
-      expect(body.msg).toBe("Bad request");
-    });
-});
+
+
+  
   

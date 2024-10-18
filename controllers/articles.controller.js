@@ -2,9 +2,21 @@ const {
   selectAllArticles,
   selectArticleid,
   alterArticle,
+  checkTopicExists,
 } = require("../models/articles.model");
+
 exports.getArticles = (req, res, next) => {
-  selectAllArticles()
+  const { topic } = req.query;
+  let checkTopicPromise;
+  if (topic) {
+    checkTopicPromise = checkTopicExists(topic);
+  } else {
+    checkTopicPromise = Promise.resolve();
+  }
+  checkTopicPromise
+    .then(() => {
+      return selectAllArticles(req.query);
+    })
     .then((articles) => {
       res.status(200).send({ articles });
     })
