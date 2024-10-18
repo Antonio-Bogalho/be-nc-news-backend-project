@@ -6,7 +6,7 @@ const {
 } = require("../models/articles.model");
 
 exports.getArticles = (req, res, next) => {
-  const { topic } = req.query;
+  const { topic, sort_by, order } = req.query;
   let checkTopicPromise;
   if (topic) {
     checkTopicPromise = checkTopicExists(topic);
@@ -15,7 +15,7 @@ exports.getArticles = (req, res, next) => {
   }
   checkTopicPromise
     .then(() => {
-      return selectAllArticles(req.query);
+      return selectAllArticles({ topic, sort_by, order });
     })
     .then((articles) => {
       res.status(200).send({ articles });
