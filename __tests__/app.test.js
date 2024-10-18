@@ -417,3 +417,21 @@ test("GET: 404 - sends an appropriate status and error message when querying a t
       expect(body.msg).toBe("Topic not found");
     });
 });
+describe("GET /api/articles/:article_id comment_count", () => {
+  test("GET: 200 - responds with the total count of all the comments from the specified article id", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .expect(200)
+      .then(({ body }) => {
+        const { article } = body;
+        expect(article).toHaveProperty("article_id", 1);
+        expect(article).toHaveProperty("author", expect.any(String));
+        expect(article).toHaveProperty("title", expect.any(String));
+        expect(article).toHaveProperty("topic", expect.any(String));
+        expect(article).toHaveProperty("created_at", expect.any(String));
+        expect(article).toHaveProperty("votes", expect.any(Number));
+        expect(article).toHaveProperty("article_img_url", expect.any(String));
+        expect(article).toHaveProperty("comment_count", 11);
+      });
+  });
+});
