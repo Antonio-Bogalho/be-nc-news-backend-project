@@ -303,7 +303,7 @@ test("PATCH: 400 - sends an appropriate status and error message when patching w
 test("PATCH: 400 - sends an appropriate status and error message when inc_votes is missing from the request body", () => {
   return request(app)
     .patch("/api/articles/1")
-    .send({})  
+    .send({})
     .set("Accept", "application/json")
     .expect(400)
     .then(({ body }) => {
@@ -312,16 +312,14 @@ test("PATCH: 400 - sends an appropriate status and error message when inc_votes 
 });
 describe("DELETE /api/comments/:comment_id", () => {
   test("DELETE: 204 - deletes the comment associated with the given id", () => {
-    return request(app)
-      .delete("/api/comments/2")
-      .expect(204)
+    return request(app).delete("/api/comments/2").expect(204);
   });
-})
+});
 test("DELETE: 404 - sends an appropriate status and error message when deleting a valid but non-existent comment_id", () => {
   return request(app)
     .delete("/api/comments/999")
     .expect(404)
-    .then(({body}) => {
+    .then(({ body }) => {
       expect(body.msg).toBe("Comment not found");
     });
 });
@@ -329,7 +327,7 @@ test("DELETE: 400 - sends an appropriate status and error message when deleting 
   return request(app)
     .delete("/api/comments/not-a-comment")
     .expect(400)
-    .then(({body}) => {
+    .then(({ body }) => {
       expect(body.msg).toBe("Bad request");
     });
 });
@@ -349,6 +347,36 @@ describe("GET /api/users", () => {
         });
       });
   });
+});
+describe("GET /api/articles?sort_by&order", () => {
+  test("GET: 200 - articles should be sorted by the valid column specified in the query (default created_at)", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles).toBeSortedBy("votes", { descending: true });
+      });
+  });
+});
+test("GET: 200 - articles should be sorted by created_at in ascending order when order is set to 'asc'", () => {
+  return request(app)
+    .get("/api/articles?sort_by=created_at&order=asc")
+    .expect(200)
+    .then(({ body }) => {
+      const { articles } = body;
+      expect(articles).toBeInstanceOf(Array);
+      expect(articles).toBeSortedBy("created_at", { descending: false });
+    });
+});
+test("GET: 400 - responds with an error when sort_by column is invalid", () => {
+  return request(app)
+    .get("/api/articles?sort_by=invalid_column")
+    .expect(400)
+    .then(({ body }) => {
+      expect(body.msg).toBe("Bad request");
+    });
 });
 describe("GET /api/articles?topic", () => {
   test("GET: 200 - articles should be filtered by the topic value specified in the query", () => {
@@ -376,20 +404,16 @@ test("GET: 200 - if topic query is valid but has no articles relating to it, ret
   return request(app)
     .get("/api/articles?topic=paper")
     .expect(200)
-    .then(({body}) => {
-      const {articles} = body
-      expect(articles).toEqual([])
+    .then(({ body }) => {
+      const { articles } = body;
+      expect(articles).toEqual([]);
     });
 });
 test("GET: 404 - sends an appropriate status and error message when querying a topic that does not exist", () => {
   return request(app)
     .get("/api/articles?topic=notatopic")
     .expect(404)
-    .then(({body}) => {
+    .then(({ body }) => {
       expect(body.msg).toBe("Topic not found");
     });
 });
-
-
-  
-  
