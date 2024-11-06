@@ -32,7 +32,12 @@ exports.addComments = (body, author, article_id) => {
     .then(({ rows }) => {
       console.log("Database returned new comment:", rows[0])
       return rows[0];
+    })
+    .catch((err) => {
+      console.error("Database insert error:", err);  
+      throw err;  
     });
+    
 };
 exports.deleteComments = (commentId) =>  {
   return db.query(`
