@@ -11,9 +11,10 @@ exports.getCommentsByArticleId = (req, res, next) => {
     });
 }
 exports.addCommentsByArticleId = (req, res, next) => {
-  console.log("POST /api/articles/:article_id/comments called");
     const articleId = req.params.article_id;
     const { body, username } = req.body;
+
+    console.log("data in post request:", { articleId, body, username})
 
     return getComments(articleId)
         .then(() => {
@@ -21,6 +22,7 @@ exports.addCommentsByArticleId = (req, res, next) => {
             return addComments(body, username, articleId);
         })
         .then((newComment) => {
+          console.log("Inserted comment:", newComment)
             res.status(201).send({ comment: newComment });
         })
         .catch((err) => {
