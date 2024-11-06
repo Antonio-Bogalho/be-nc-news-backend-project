@@ -11,6 +11,7 @@ exports.getCommentsByArticleId = (req, res, next) => {
     });
 }
 exports.addCommentsByArticleId = (req, res, next) => {
+  console.log("POST /api/articles/:article_id/comments called");
     const articleId = req.params.article_id;
     const { body, username } = req.body;
 
