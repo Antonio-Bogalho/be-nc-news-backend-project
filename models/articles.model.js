@@ -58,6 +58,7 @@ exports.selectAllArticles = ({
     "author",
     "article_id",
     "topic",
+    "comment_count"
   ];
   const validOrderValues = ["asc", "desc"];
   if (!validSortColumns.includes(sort_by)) {
